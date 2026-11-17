@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>악보 사진을 MusicXML로 — 아미고시</title>
+<meta name="description" content="악보 사진을 무료 AI 채팅(Gemini, ChatGPT)으로 MusicXML 파일로 바꿔 아미고시에 가져오는 방법.">
+<meta name="theme-color" content="#101214">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap">
+<style>
+/* 색과 글꼴은 소개 페이지(site/index.html)와 앱과 같다: 어두운 단일 테마, 주황 강조, 청록은 "지금 위치" */
+:root{
+  --ground:#101214; --surface:#1A1D21; --raised:#23272D; --line:#2E333A;
+  --ink:#F2F0EA; --quiet:#A4A9B0; --accent:#F5A524; --accent-dim:#8A6A2A; --now:#4FD1C5;
+  --body:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;
+  --num:'Space Grotesk','Noto Sans KR',system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.7;-webkit-font-smoothing:antialiased;word-break:keep-all;overflow-wrap:anywhere}
+h1,h2,h3,p{margin:0}
+a{color:var(--accent)}
+.wrap{max-width:860px;margin:0 auto;padding-inline:16px}
+button{font-family:inherit;color:var(--ink);cursor:pointer}
+:focus-visible{outline:2px solid var(--now);outline-offset:2px}
+
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:18px}
+.back{color:var(--quiet);text-decoration:none;font-size:14px}
+.back:hover{color:var(--ink)}
+.lang{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.lang button{background:none;border:0;min-width:48px;min-height:36px;font-size:13px;font-family:var(--num);font-weight:700;color:var(--quiet)}
+.lang button[aria-pressed="true"]{background:var(--raised);color:var(--ink)}
+
+header.hero{padding-block:24px 8px}
+.kicker{font-family:var(--num);font-size:13px;color:var(--accent);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px}
+h1{font-size:clamp(26px,5vw,38px);line-height:1.25}
+.lead{color:var(--quiet);margin-top:12px;max-width:640px}
+section{padding-block:28px}
+h2{font-size:21px;margin-bottom:12px}
+.sub{color:var(--quiet)}
+
+/* 애니메이션 데모 (GIF처럼 자동 반복) */
+.player{background:var(--surface);border:1px solid var(--line);border-radius:20px;overflow:hidden}
+.stage{position:relative;height:340px;background:radial-gradient(120% 80% at 50% 0%,#1d2228 0%,var(--ground) 70%)}
+.scene{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:18px;opacity:0;transition:opacity .45s}
+.scene.on{opacity:1}
+.chat{width:min(420px,100%);background:var(--raised);border:1px solid var(--line);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.chat-head{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--quiet)}
+.chat-head i{width:8px;height:8px;border-radius:50%;background:var(--now);display:inline-block}
+.bubble{align-self:flex-end;max-width:85%;background:#2f3540;border-radius:14px 14px 4px 14px;padding:8px 10px;font-size:13px}
+.bubble.ai{align-self:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:14px 14px 14px 4px;width:92%}
+.input{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:12px;padding:8px 10px;font-size:13px;color:var(--quiet);min-height:40px}
+.input .clip{width:22px;height:22px;flex:none;border-radius:6px;background:var(--surface);display:grid;place-items:center;color:var(--ink)}
+.sheet{width:150px;border-radius:8px;background:#f4f1e8;padding:8px;box-shadow:0 6px 18px rgba(0,0,0,.4)}
+.on .sheet.drop{animation:drop 1.4s ease-out both}
+@keyframes drop{0%{transform:translateY(-60px) rotate(-6deg);opacity:0}60%{opacity:1}100%{transform:none}}
+.typing{white-space:pre-wrap}
+.typing span{opacity:0}
+.on .typing span{animation:show .01s forwards}
+@keyframes show{to{opacity:1}}
+.code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11.5px;line-height:1.55;color:#cfd3d8;background:#0c0e10;border-radius:8px;padding:8px 10px;overflow:hidden}
+.code b{color:var(--accent);font-weight:500}
+.code div{opacity:0;transform:translateY(3px)}
+.on .code div{animation:line .25s forwards}
+@keyframes line{to{opacity:1;transform:none}}
+.file{display:flex;flex-direction:column;align-items:center;gap:10px}
+.file .doc{width:96px;height:120px;border-radius:10px;background:var(--raised);border:1px solid var(--line);position:relative;display:grid;place-items:center;font-family:var(--num);font-weight:700;color:var(--accent)}
+.file .doc::before{content:"";position:absolute;top:0;right:0;width:26px;height:26px;background:var(--line);border-bottom-left-radius:10px}
+.on .file .doc{animation:pop .6s .2s both}
+@keyframes pop{0%{transform:scale(.6);opacity:0}100%{transform:none;opacity:1}}
+.file .name{font-family:var(--num);font-size:14px}
+.saveas{font-size:12px;color:var(--quiet);border:1px dashed var(--line);border-radius:8px;padding:6px 10px}
+.phone{width:230px;height:300px;border-radius:26px;border:2px solid var(--line);background:var(--ground);padding:14px 12px;display:flex;flex-direction:column;gap:8px;font-size:12px}
+.phone .t{font-weight:700;font-size:14px}
+.phone .row{border:1px solid var(--line);border-radius:10px;padding:8px;text-align:center}
+.on .phone .tap{animation:tap 1.2s .6s both}
+@keyframes tap{0%,40%{background:transparent}50%{background:rgba(79,209,197,.25);border-color:var(--now)}100%{background:rgba(79,209,197,.12);border-color:var(--now)}}
+.staff{margin-top:auto;border-radius:10px;background:var(--surface);padding:6px;opacity:0}
+.on .staff{animation:pop .5s 1.8s both}
+.controls{display:flex;align-items:center;gap:10px;padding:10px 14px;border-top:1px solid var(--line)}
+.controls button{background:var(--raised);border:1px solid var(--line);border-radius:10px;min-width:44px;min-height:36px;font-size:13px}
+.dots{display:flex;gap:6px;flex:1;flex-wrap:wrap}
+.dots button{min-width:0;min-height:30px;padding:0 10px;border-radius:999px;font-size:12px;color:var(--quiet);background:none}
+.dots button[aria-current="step"]{color:var(--ground);background:var(--accent);border-color:var(--accent);font-weight:700}
+.caption{padding:4px 14px 14px;color:var(--ink);font-size:15px;min-height:52px}
+
+/* 단계, 요청문, 주의 */
+ol.steps{list-style:none;padding:0;margin:0;display:grid;gap:10px;counter-reset:s}
+ol.steps li{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px 12px 52px;position:relative;counter-increment:s}
+ol.steps li::before{content:counter(s);position:absolute;left:14px;top:12px;width:26px;height:26px;border-radius:50%;background:var(--raised);display:grid;place-items:center;font-family:var(--num);font-weight:700;font-size:13px;color:var(--accent)}
+ol.steps b{display:block}
+.prompt{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.prompt pre{margin:0;padding:14px;white-space:pre-wrap;font-family:var(--body);font-size:14px;line-height:1.7}
+.prompt .bar{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 10px 8px 14px;border-bottom:1px solid var(--line);font-size:13px;color:var(--quiet)}
+.prompt button{background:var(--accent);color:var(--ground);border:0;border-radius:10px;min-height:36px;padding:0 14px;font-weight:700;font-size:13px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px}
+.card h3{font-size:16px;margin-bottom:6px}
+.card p,.card li{color:var(--quiet);font-size:14px}
+.card ul{margin:0;padding-left:18px}
+.warn{border-color:var(--accent-dim)}
+footer{padding-block:28px 40px;color:var(--quiet);font-size:13px;border-top:1px solid var(--line);margin-top:20px}
+
+@media (prefers-reduced-motion:reduce){
+  .scene{transition:none}
+  .on .sheet.drop,.on .file .doc,.on .phone .tap,.on .staff,.on .code div,.on .typing span{animation:none;opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a class="back" href="../" data-i18n="back">← 아미고시</a>
+    <div class="lang" role="group" aria-label="Language">
+      <button type="button" data-lang="ko" aria-pressed="true">한국어</button>
+      <button type="button" data-lang="en" aria-pressed="false">EN</button>
+    </div>
+  </div>
+
+  <header class="hero">
+    <p class="kicker" data-i18n="k">Guide</p>
+    <h1 data-i18n="h1">악보 사진을 MusicXML로 바꿔 가져오기</h1>
+    <p class="lead" data-i18n="lead">앱은 악보 파일(MusicXML)과 MIDI 파일을 읽어 베이스·피아노 패턴의 초안을 만듭니다. 종이 악보나 사진밖에 없다면, 무료 AI 채팅(Gemini, ChatGPT)에 사진을 보여 주고 MusicXML로 옮겨 달라고 할 수 있습니다.</p>
+  </header>
+
+  <section aria-labelledby="demoH">
+    <h2 id="demoH" data-i18n="demo.h">한눈에 보기</h2>
+    <div class="player" id="player">
+      <div class="stage" aria-hidden="true">
+        <!-- 1. 사진 올리기 -->
+        <div class="scene" data-step="0">
+          <div class="chat">
+            <div class="chat-head"><i></i><span data-i18n="chat">AI 채팅 (Gemini 또는 ChatGPT)</span></div>
+            <div class="sheet drop">
+              <svg viewBox="0 0 140 60" width="134" height="58"><g stroke="#333" stroke-width=".8"><line x1="4" y1="14" x2="136" y2="14"/><line x1="4" y1="20" x2="136" y2="20"/><line x1="4" y1="26" x2="136" y2="26"/><line x1="4" y1="32" x2="136" y2="32"/><line x1="4" y1="38" x2="136" y2="38"/><line x1="70" y1="14" x2="70" y2="38"/><line x1="135" y1="14" x2="135" y2="38"/></g><g fill="#222"><ellipse cx="24" cy="35" rx="3.6" ry="2.6"/><ellipse cx="44" cy="29" rx="3.6" ry="2.6"/><ellipse cx="58" cy="29" rx="3.6" ry="2.6"/><ellipse cx="88" cy="32" rx="3.6" ry="2.6"/><ellipse cx="108" cy="26" rx="3.6" ry="2.6"/><ellipse cx="122" cy="26" rx="3.6" ry="2.6"/></g><g stroke="#222" stroke-width="1"><line x1="27.4" y1="35" x2="27.4" y2="16"/><line x1="47.4" y1="29" x2="47.4" y2="12"/><line x1="61.4" y1="29" x2="61.4" y2="12"/><line x1="91.4" y1="32" x2="91.4" y2="14"/><line x1="111.4" y1="26" x2="111.4" y2="8"/><line x1="125.4" y1="26" x2="125.4" y2="8"/></g><text x="6" y="54" font-size="8" fill="#555" font-family="sans-serif">Bass · (2-3)</text></svg>
+            </div>
+            <div class="input"><span class="clip">+</span><span data-i18n="s0.in">악보 사진 1장 첨부됨</span></div>
+          </div>
+        </div>
+        <!-- 2. 요청문 -->
+        <div class="scene" data-step="1">
+          <div class="chat">
+            <div class="chat-head"><i></i><span data-i18n="chat">AI 채팅 (Gemini 또는 ChatGPT)</span></div>
+            <div class="bubble typing" id="typing"></div>
+            <div class="input"><span class="clip">+</span><span data-i18n="s1.in">아래 요청문을 붙여 넣고 보내기</span></div>
+          </div>
+        </div>
+        <!-- 3. AI 답 -->
+        <div class="scene" data-step="2">
+          <div class="chat">
+            <div class="chat-head"><i></i><span data-i18n="chat">AI 채팅 (Gemini 또는 ChatGPT)</span></div>
+            <div class="bubble ai"><div class="code">
+              <div style="animation-delay:.1s">&lt;?xml version="1.0"?&gt;</div>
+              <div style="animation-delay:.4s">&lt;<b>score-partwise</b> version="4.0"&gt;</div>
+              <div style="animation-delay:.7s">&nbsp;&lt;part id="P1"&gt;&lt;measure number="1"&gt;</div>
+              <div style="animation-delay:1s">&nbsp;&nbsp;&lt;<b>harmony</b>&gt;C&lt;/harmony&gt;</div>
+              <div style="animation-delay:1.3s">&nbsp;&nbsp;&lt;<b>note</b>&gt;&lt;pitch&gt;&lt;step&gt;G&lt;/step&gt;…</div>
+              <div style="animation-delay:1.6s">&nbsp;&nbsp;…</div>
+              <div style="animation-delay:1.9s">&lt;/score-partwise&gt;</div>
+            </div></div>
+          </div>
+        </div>
+        <!-- 4. 파일로 저장 -->
+        <div class="scene" data-step="3">
+          <div class="file">
+            <div class="doc">XML</div>
+            <div class="name">bass.musicxml</div>
+            <div class="saveas" data-i18n="s3.save">복사 → 메모장에 붙여 넣기 → .musicxml 로 저장</div>
+          </div>
+        </div>
+        <!-- 5. 앱에서 가져오기 -->
+        <div class="scene" data-step="4">
+          <div class="phone">
+            <div class="t" data-i18n="s4.t">베이스</div>
+            <div class="row" data-i18n="s4.mine">내 패턴</div>
+            <div class="row tap" data-i18n="s4.import">악보·MIDI 파일에서 가져오기</div>
+            <div class="staff">
+              <svg viewBox="0 0 200 60" width="100%" height="60"><g stroke="#2E333A" stroke-width="1"><line x1="4" y1="12" x2="196" y2="12"/><line x1="4" y1="22" x2="196" y2="22"/><line x1="4" y1="32" x2="196" y2="32"/><line x1="4" y1="42" x2="196" y2="42"/><line x1="4" y1="52" x2="196" y2="52"/></g><g fill="#F5A524"><rect x="70" y="35" width="56" height="6" rx="3"/><rect x="146" y="25" width="44" height="6" rx="3"/><circle cx="70" cy="38" r="5"/><circle cx="146" cy="28" r="5"/></g><rect x="62" y="4" width="18" height="54" rx="4" fill="none" stroke="#4FD1C5" stroke-width="1.5"/></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="controls">
+        <button type="button" id="pause" aria-pressed="false" data-i18n="pause">일시정지</button>
+        <div class="dots" id="dots" role="group" aria-label="Steps"></div>
+      </div>
+      <p class="caption" id="caption" role="status"></p>
+    </div>
+  </section>
+
+  <section aria-labelledby="howH">
+    <h2 id="howH" data-i18n="how.h">순서</h2>
+    <ol class="steps">
+      <li><b data-i18n="st1.h">악보를 사진으로 찍습니다</b><span class="sub" data-i18n="st1.p">밝은 곳에서 위에서 똑바로 찍습니다. 한 번에 4~8마디, 베이스는 한 단만 보이게 자르면 결과가 훨씬 정확합니다.</span></li>
+      <li><b data-i18n="st2.h">무료 AI 채팅을 엽니다</b><span class="sub" data-i18n="st2.p"><a href="https://gemini.google.com/" rel="noopener" target="_blank">Gemini</a> 또는 <a href="https://chatgpt.com/" rel="noopener" target="_blank">ChatGPT</a>. 무료 계정으로 사진을 올릴 수 있습니다(무료로 쓸 수 있는 양은 서비스마다 다르고 바뀔 수 있습니다).</span></li>
+      <li><b data-i18n="st3.h">사진을 첨부하고 아래 요청문을 보냅니다</b><span class="sub" data-i18n="st3.p">요청문은 아래에서 복사합니다. 피아노 악보라면 첫 줄의 "베이스 한 단"을 "피아노 두 단"으로 바꿉니다.</span></li>
+      <li><b data-i18n="st4.h">답을 파일로 저장합니다</b><span class="sub" data-i18n="st4.p">코드 블록을 복사해 메모장(또는 휴대폰의 텍스트 편집 앱)에 붙여 넣고 이름을 <code>bass.musicxml</code>처럼 저장합니다. "파일로 내려받게 해 줘"라고 다시 요청하면 파일을 바로 주기도 합니다.</span></li>
+      <li><b data-i18n="st5.h">앱에서 가져옵니다</b><span class="sub" data-i18n="st5.p">베이스(또는 피아노)의 악기 옵션 → "악보·MIDI 파일에서 가져오기" → 파일 선택 → 파트·단·시작 마디·길이(1·2·4·8마디)를 고릅니다.</span></li>
+      <li><b data-i18n="st6.h">오선지 편집기에서 확인하고 저장합니다</b><span class="sub" data-i18n="st6.p">AI가 옮긴 악보는 틀린 음이 자주 섞입니다. 원래 악보와 한 마디씩 비교하고, 미리듣기로 들어 보며 고친 뒤 저장합니다.</span></li>
+    </ol>
+  </section>
+
+  <section aria-labelledby="promptH">
+    <h2 id="promptH" data-i18n="pr.h">요청문</h2>
+    <div class="prompt">
+      <div class="bar"><span data-i18n="pr.bar">복사해서 사진과 함께 보내세요</span><button type="button" id="copy" data-i18n="pr.copy">복사</button></div>
+      <pre id="promptText"></pre>
+    </div>
+  </section>
+
+  <section aria-labelledby="tipH">
+    <h2 id="tipH" data-i18n="tip.h">알아 둘 것</h2>
+    <div class="grid2">
+      <div class="card"><h3 data-i18n="t1.h">결과는 초안입니다</h3><p data-i18n="t1.p">사진에서 음표를 읽는 일은 AI도 자주 틀립니다. 특히 리듬(점음표, 붙임줄, 엇박)과 임시표를 꼭 확인하세요. 앱은 가져온 결과를 언제나 편집기의 초안으로 보여 줍니다.</p></div>
+      <div class="card"><h3 data-i18n="t2.h">다른 길도 있습니다</h3><ul><li data-i18n="t2.1">악보 프로그램(예: MuseScore, 무료)에서 MusicXML로 내보내기</li><li data-i18n="t2.2">MIDI 파일(.mid, 형식 0·1)을 그대로 가져오기</li><li data-i18n="t2.3">오선지 편집기에서 직접 적기</li></ul></div>
+      <div class="card warn"><h3 data-i18n="t3.h">저작권</h3><p data-i18n="t3.p">내가 연습하려고 가진 악보만 옮기세요. 앱은 패턴을 기기 안에만 저장하고, 베이스·피아노 패턴은 프리셋 내보내기 파일에도 담지 않습니다.</p></div>
+      <div class="card warn"><h3 data-i18n="t4.h">사진은 AI 서비스로 갑니다</h3><p data-i18n="t4.p">앱은 악보를 밖으로 보내지 않지만, 이 방법은 사용자가 직접 사진을 AI 서비스에 올립니다. 그 사진은 해당 서비스의 정책에 따라 처리됩니다.</p></div>
+    </div>
+  </section>
+
+  <footer>
+    <p data-i18n="ft">Gemini는 Google의, ChatGPT는 OpenAI의 서비스이며 아미고시와 관련이 없습니다. 위 애니메이션은 흐름을 보여 주는 그림이고 실제 화면과 다릅니다.</p>
+  </footer>
+</div>
+
+<script>
+var KO_PROMPT='첨부한 악보 사진을 MusicXML(score-partwise, 버전 4.0)로 옮겨 주세요.\n- 베이스 한 단만 옮깁니다.\n- 박자표, 조표, 음자리표, 붙임줄, 쉼표, 임시표를 악보 그대로 적어 주세요.\n- 코드 기호가 있으면 <harmony> 요소로 넣어 주세요.\n- 클라베 방향 표시 "(2-3)" 또는 "(3-2)"가 있으면 <words>로 남겨 주세요.\n- 반복 기호는 펼치지 말고, 보이는 마디만 순서대로 옮겨 주세요.\n- 읽기 어려운 음은 추측하지 말고 그 마디에 <!-- 확인 필요 --> 주석을 달아 주세요.\n- 설명 없이 완성된 MusicXML을 코드 블록 하나로만 답해 주세요.';
+var EN_PROMPT='Transcribe the attached sheet music photo into MusicXML (score-partwise, version 4.0).\n- Transcribe the bass staff only.\n- Keep the time signature, key signature, clef, ties, rests and accidentals exactly as written.\n- Put any chord symbols in <harmony> elements.\n- If the clave direction "(2-3)" or "(3-2)" is written, keep it as <words>.\n- Do not expand repeats; transcribe the visible measures in order.\n- Do not guess notes you cannot read; add a <!-- check --> comment in that measure instead.\n- Reply with the complete MusicXML in a single code block, with no explanation.';
+var EN={
+ 'back':'← Amigosi','k':'Guide','h1':'Turn a sheet music photo into MusicXML',
+ 'lead':'The app reads sheet music files (MusicXML) and MIDI files and turns them into draft bass and piano patterns. If all you have is paper or a photo, you can show the photo to a free AI chat (Gemini, ChatGPT) and ask it to write MusicXML.',
+ 'demo.h':'At a glance','chat':'AI chat (Gemini or ChatGPT)','s0.in':'1 sheet music photo attached','s1.in':'Paste the request below and send',
+ 's3.save':'Copy → paste into a text editor → save as .musicxml','s4.t':'Bass','s4.mine':'My patterns','s4.import':'Import from score or MIDI file','pause':'Pause',
+ 'how.h':'Steps',
+ 'st1.h':'Photograph the sheet','st1.p':'Shoot straight from above in good light. Crop to 4–8 bars, with only the bass staff visible, for much better results.',
+ 'st2.h':'Open a free AI chat','st2.p':'<a href="https://gemini.google.com/" rel="noopener" target="_blank">Gemini</a> or <a href="https://chatgpt.com/" rel="noopener" target="_blank">ChatGPT</a>. Free accounts can upload photos (free limits differ by service and may change).',
+ 'st3.h':'Attach the photo and send the request below','st3.p':'Copy the request below. For a piano part, change "the bass staff only" to "both piano staves".',
+ 'st4.h':'Save the answer as a file','st4.p':'Copy the code block, paste it into a text editor (or a notes app on your phone) and save it with a name like <code>bass.musicxml</code>. Asking "give it to me as a downloadable file" often gets you the file directly.',
+ 'st5.h':'Import it in the app','st5.p':'Bass (or piano) options → "Import from score or MIDI file" → pick the file → choose the part, staff, start bar and length (1, 2, 4 or 8 bars).',
+ 'st6.h':'Check it in the staff editor and save','st6.p':'AI transcriptions often contain wrong notes. Compare bar by bar with the original, listen with preview, fix, then save.',
+ 'pr.h':'Request','pr.bar':'Copy it and send it with the photo','pr.copy':'Copy','tip.h':'Good to know',
+ 't1.h':'The result is a draft','t1.p':'Reading notes from a photo is error-prone, even for AI. Check rhythms (dots, ties, off-beats) and accidentals carefully. The app always opens imports as a draft in the editor.',
+ 't2.h':'Other ways','t2.1':'Export MusicXML from notation software (e.g. MuseScore, free)','t2.2':'Import a MIDI file (.mid, format 0 or 1) directly','t2.3':'Write it yourself in the staff editor',
+ 't3.h':'Copyright','t3.p':'Only transcribe sheet music you own for your own practice. The app keeps patterns on your device and never puts bass or piano patterns in preset export files.',
+ 't4.h':'Your photo goes to the AI service','t4.p':'The app never sends your sheets anywhere, but with this method you upload the photo to an AI service yourself. It is handled under that service\'s policies.',
+ 'ft':'Gemini is a Google service and ChatGPT is an OpenAI service; neither is affiliated with Amigosi. The animation above illustrates the flow and does not show the real screens.'
+};
+var CAP={ko:['악보 사진을 AI 채팅에 올립니다','요청문을 붙여 넣고 보냅니다','AI가 MusicXML로 답합니다','답을 .musicxml 파일로 저장합니다','앱에서 가져와 오선지 편집기에서 확인합니다'],
+         en:['Upload the sheet music photo to an AI chat','Paste the request and send it','The AI answers in MusicXML','Save the answer as a .musicxml file','Import it in the app and check it in the staff editor']};
+var STEP_LABEL={ko:['사진','요청','답','저장','가져오기'],en:['Photo','Ask','Answer','Save','Import']};
+
+var lang='ko',KO={},els=document.querySelectorAll('[data-i18n]');
+Array.prototype.forEach.call(els,function(el){KO[el.getAttribute('data-i18n')]=el.innerHTML;});
+function setLang(l){
+  lang=l;document.documentElement.lang=l;
+  Array.prototype.forEach.call(els,function(el){var k=el.getAttribute('data-i18n');el.innerHTML=(l==='en'&&EN[k])||KO[k];});
+  Array.prototype.forEach.call(document.querySelectorAll('[data-lang]'),function(b){b.setAttribute('aria-pressed',b.getAttribute('data-lang')===l?'true':'false');});
+  document.title=l==='en'?'Sheet music photo to MusicXML — Amigosi':'악보 사진을 MusicXML로 — 아미고시';
+  document.getElementById('promptText').textContent=l==='en'?EN_PROMPT:KO_PROMPT;
+  try{localStorage.setItem('lrb-lang',l);}catch(e){}
+  pauseLabel();buildDots();show(cur,true);
+}
+function pauseLabel(){var p=document.getElementById('pause');if(p)p.textContent=paused?(lang==='en'?'Play':'재생'):(lang==='en'?'Pause':'일시정지');}
+Array.prototype.forEach.call(document.querySelectorAll('[data-lang]'),function(b){b.addEventListener('click',function(){setLang(b.getAttribute('data-lang'));});});
+
+/* 데모: 장면 5개를 자동으로 돈다. 움직임 줄이기 설정이면 자동으로 넘기지 않는다. */
+var scenes=document.querySelectorAll('.scene'),cur=0,timer=null,paused=false;
+/* setLang 이 먼저 불리므로 위로 올려 둔다 */
+var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+var DUR=[3200,4200,3800,3200,4200];
+function typeRequest(){
+  var t=document.getElementById('typing');var text=(lang==='en'?EN_PROMPT:KO_PROMPT).split('\n').slice(0,3).join('\n')+'\n…';
+  t.innerHTML='';for(var i=0;i<text.length;i++){var s=document.createElement('span');s.textContent=text[i];s.style.animationDelay=(i*0.018)+'s';t.appendChild(s);}
+}
+function show(i,keep){
+  cur=(i+scenes.length)%scenes.length;
+  Array.prototype.forEach.call(scenes,function(s,n){s.classList.remove('on');});
+  if(cur===1)typeRequest();
+  void scenes[cur].offsetWidth; /* 애니메이션을 처음부터 다시 */
+  scenes[cur].classList.add('on');
+  document.getElementById('caption').textContent=(cur+1)+'. '+CAP[lang][cur];
+  Array.prototype.forEach.call(document.querySelectorAll('#dots button'),function(b,n){if(n===cur)b.setAttribute('aria-current','step');else b.removeAttribute('aria-current');});
+  clearTimeout(timer);if(!paused&&!reduce)timer=setTimeout(function(){show(cur+1);},DUR[cur]);
+}
+function buildDots(){
+  var d=document.getElementById('dots');d.innerHTML='';
+  STEP_LABEL[lang].forEach(function(l,n){var b=document.createElement('button');b.type='button';b.textContent=(n+1)+' '+l;b.addEventListener('click',function(){show(n);});d.appendChild(b);});
+}
+document.getElementById('pause').addEventListener('click',function(){
+  paused=!paused;reduce=false;this.setAttribute('aria-pressed',String(paused));
+  pauseLabel();show(cur);
+});
+document.getElementById('copy').addEventListener('click',function(){
+  var b=this,text=document.getElementById('promptText').textContent;
+  function done(){b.textContent=lang==='en'?'Copied':'복사됨';setTimeout(function(){b.textContent=lang==='en'?'Copy':'복사';},1600);}
+  if(navigator.clipboard)navigator.clipboard.writeText(text).then(done,function(){});
+});
+
+/* 언어: 주소의 ?lang= → 저장한 값 → 브라우저 언어 순 */
+var q=(location.search.match(/[?&]lang=(ko|en)/)||[])[1],saved=null;
+try{saved=localStorage.getItem('lrb-lang');}catch(e){}
+setLang(q||saved||((navigator.language||'ko').toLowerCase().indexOf('ko')===0?'ko':'en'));
+if(reduce){paused=true;document.getElementById('pause').setAttribute('aria-pressed','true');pauseLabel();}
+</script>
+</body>
+</html>

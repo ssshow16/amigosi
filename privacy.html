@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>개인정보처리방침 — 아미고시</title>
+<meta name="description" content="아미고시(Amigosi) 앱과 소개 사이트의 개인정보처리방침. 앱은 개인정보를 수집하지 않습니다.">
+<meta name="theme-color" content="#101214">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap">
+<style>
+/* 색과 글꼴은 소개 페이지(site/index.html)와 앱과 같다: 어두운 단일 테마, 주황 강조 */
+:root{
+  --ground:#101214; --surface:#1A1D21; --raised:#23272D; --line:#2E333A;
+  --ink:#F2F0EA; --quiet:#A4A9B0; --accent:#F5A524; --now:#4FD1C5;
+  --body:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;
+  --num:'Space Grotesk','Noto Sans KR',system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.7;-webkit-font-smoothing:antialiased;word-break:keep-all;overflow-wrap:anywhere}
+h1,h2,p,ul{margin:0}
+a{color:inherit}
+button{font-family:inherit;color:var(--ink);cursor:pointer}
+:focus-visible{outline:2px solid var(--now);outline-offset:2px}
+.wrap{max-width:760px;margin:0 auto;padding-inline:20px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:18px}
+.brand{font-weight:700;font-size:16px;text-decoration:none}
+.lang{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.lang button{background:none;border:0;min-width:48px;min-height:36px;font-size:13px;font-family:var(--num);font-weight:700;color:var(--quiet)}
+.lang button[aria-pressed="true"]{background:var(--raised);color:var(--ink)}
+.kicker{font-family:var(--num);font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-top:28px}
+h1{font-size:clamp(28px,5vw,40px);line-height:1.2;letter-spacing:-.01em;margin-top:10px}
+.date{margin-top:10px;font-size:14px;color:var(--quiet)}
+.gist{margin-top:28px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:20px 22px;font-size:17px}
+h2{font-size:20px;line-height:1.35;margin-top:40px}
+main p{margin-top:12px;color:#C9CDD3}
+main ul{margin-top:12px;padding-left:20px;color:#C9CDD3}
+main li + li{margin-top:6px}
+footer{border-top:1px solid var(--raised);margin-top:56px;padding-block:28px 56px;font-size:13px;color:var(--quiet)}
+footer a{color:#C9CDD3}
+</style>
+</head>
+<body>
+
+<header class="wrap top">
+  <a class="brand" href="./" data-i18n="brand">아미고시</a>
+  <div class="lang" role="group" aria-label="Language">
+    <button type="button" data-lang="ko" aria-pressed="true">한국어</button>
+    <button type="button" data-lang="en" aria-pressed="false">EN</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <p class="kicker">Privacy</p>
+  <h1 data-i18n="h1">개인정보처리방침</h1>
+  <p class="date" data-i18n="date">마지막으로 고친 날: 2026년 11월 15일</p>
+
+  <p class="gist" data-i18n="gist">아미고시 앱은 개인정보를 수집하지 않습니다. 계정이 없고, 앱이 운영하는 서버가 없고, 광고와 사용 분석 도구를 넣지 않았습니다.</p>
+
+  <h2 data-i18n="s1.h">1. 앱이 다루는 정보</h2>
+  <p data-i18n="s1.p">아래 정보는 모두 사용자의 기기 안에만 저장되고, 개발자에게 전송되지 않습니다.</p>
+  <ul>
+    <li data-i18n="s1.a">프리셋, 코드 진행, 곡 구성, 직접 만든 패턴, 마지막 작업 상태</li>
+    <li data-i18n="s1.b">가져오기로 고른 악보·MIDI·프리셋 파일. 고른 파일만 기기 안에서 읽습니다. 앱은 저장소 권한을 요청하지 않습니다.</li>
+    <li data-i18n="s1.c">“말로 구성하기”에 적은 글. 기기 안에서만 해석합니다.</li>
+    <li data-i18n="s1.d">전체 기능을 샀는지 여부(예/아니오)</li>
+  </ul>
+  <p data-i18n="s1.backup">기기의 백업 기능(Android의 Google 백업, iOS의 iCloud 백업)을 켜 두었다면 이 정보가 사용자 본인 계정의 백업에 들어갈 수 있습니다. 백업은 Google과 Apple이 각자의 방침에 따라 처리하며 개발자는 볼 수 없습니다.</p>
+
+  <h2 data-i18n="s2.h">2. 결제</h2>
+  <p data-i18n="s2.p">전체 기능 구매는 Google Play 또는 Apple App Store가 처리합니다. 결제 수단과 결제 내역은 스토어가 각자의 방침에 따라 다루며, 앱은 스토어에서 “이 스토어 계정이 전체 기능을 샀는지”만 확인합니다. 앱은 이름, 이메일, 카드 정보를 받지 않습니다.</p>
+
+  <h2 data-i18n="s3.h">3. 권한</h2>
+  <p data-i18n="s3.p">앱은 마이크, 카메라, 위치, 연락처, 사진 같은 권한을 요청하지 않습니다.</p>
+
+  <h2 data-i18n="s4.h">4. 이 사이트</h2>
+  <p data-i18n="s4.p">앱의 도움말 버튼은 이 사이트의 페이지를 브라우저로 엽니다. 사이트는 GitHub Pages에 올라가 있고 글꼴을 Google Fonts에서 불러옵니다. 그래서 페이지를 열면 여느 웹 사이트처럼 IP 주소와 브라우저 정보가 GitHub와 Google에 전달될 수 있습니다. 사이트는 쿠키와 분석 도구를 쓰지 않고, 고른 언어만 브라우저 안(localStorage)에 기억합니다.</p>
+
+  <h2 data-i18n="s5.h">5. 어린이</h2>
+  <p data-i18n="s5.p">앱은 나이와 상관없이 누구의 개인정보도 수집하지 않습니다.</p>
+
+  <h2 data-i18n="s6.h">6. 정보 지우기</h2>
+  <p data-i18n="s6.p">앱을 지우면 앱이 기기에 저장한 정보가 함께 지워집니다. 내보내기로 저장한 파일은 고른 자리에 남으므로 직접 지워야 합니다. 백업에 들어간 사본은 기기의 백업 설정에서 지울 수 있습니다.</p>
+
+  <h2 data-i18n="s7.h">7. 방침이 바뀌면</h2>
+  <p data-i18n="s7.p">방침을 고치면 이 페이지에 올리고 위의 날짜를 바꿉니다.</p>
+
+  <!-- TODO(출시): 문의 이메일 주소가 정해지면 아래 두 곳(한국어 문단, 스크립트 EN 의 's8.p')의 주소를 채우고 section 의 hidden 을 지운다.
+       운영자(개발자) 이름도 스토어에 등록한 이름으로 함께 적는다. 그 전에는 이 구역이 화면에 보이지 않는다. -->
+  <section id="contact" hidden>
+    <h2 data-i18n="s8.h">8. 문의</h2>
+    <p data-i18n="s8.p">개인정보에 관한 문의: <a href="mailto:"></a></p>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p><a href="./" data-i18n="ft.home">← 아미고시 소개로</a></p>
+  </div>
+</footer>
+
+<script>
+(function(){
+'use strict';
+/* 다국어: 한국어는 HTML에, 영어는 여기에. 방식은 guide/musicxml.html 과 같다 */
+var EN={
+ 'brand':'Amigosi',
+ 'h1':'Privacy policy',
+ 'date':'Last updated: November 15, 2026',
+ 'gist':'The Amigosi app does not collect personal information. There are no accounts, the app has no server of its own, and it contains no ads or analytics.',
+ 's1.h':'1. Information the app handles',
+ 's1.p':'All of the following stays on your device and is never sent to the developer.',
+ 's1.a':'Presets, chord progressions, song forms, patterns you make, and your last working state',
+ 's1.b':'Score, MIDI and preset files you pick for import. Only the file you pick is read, on the device. The app does not ask for storage permission.',
+ 's1.c':'Text you type into “Describe it”. It is interpreted on the device only.',
+ 's1.d':'Whether the full version has been purchased (yes or no)',
+ 's1.backup':'If device backup is turned on (Google backup on Android, iCloud backup on iOS), this information may be included in the backup of your own account. Backups are handled by Google and Apple under their own policies, and the developer cannot see them.',
+ 's2.h':'2. Purchases',
+ 's2.p':'The full version purchase is handled by Google Play or the Apple App Store. Payment methods and payment records are handled by the store under its own policy; the app only asks the store whether this store account owns the full version. The app does not receive your name, email address or card details.',
+ 's3.h':'3. Permissions',
+ 's3.p':'The app does not ask for permissions such as microphone, camera, location, contacts or photos.',
+ 's4.h':'4. This website',
+ 's4.p':'The help button in the app opens a page of this website in your browser. The site is hosted on GitHub Pages and loads its fonts from Google Fonts, so, as with any website, opening a page may pass your IP address and browser information to GitHub and Google. The site uses no cookies or analytics, and only remembers your chosen language in the browser (localStorage).',
+ 's5.h':'5. Children',
+ 's5.p':'The app does not collect personal information from anyone, regardless of age.',
+ 's6.h':'6. Deleting your information',
+ 's6.p':'Uninstalling the app deletes the information the app stored on the device. Files you saved with export stay where you put them, so delete those yourself. Copies in a backup can be removed in the backup settings of your device.',
+ 's7.h':'7. Changes to this policy',
+ 's7.p':'If the policy changes, it will be posted on this page and the date above will be updated.',
+ 's8.h':'8. Contact',
+ 's8.p':'Questions about privacy: <a href="mailto:"></a>',
+ 'ft.home':'← Back to Amigosi'
+};
+var TITLE={ko:'개인정보처리방침 — 아미고시',en:'Privacy policy — Amigosi'};
+var KO={},els=document.querySelectorAll('[data-i18n]');
+Array.prototype.forEach.call(els,function(el){var k=el.getAttribute('data-i18n');if(!(k in KO))KO[k]=el.innerHTML;});
+function setLang(l){
+  document.documentElement.lang=l;document.title=TITLE[l];
+  Array.prototype.forEach.call(els,function(el){var k=el.getAttribute('data-i18n');el.innerHTML=(l==='en'&&EN[k])||KO[k];});
+  Array.prototype.forEach.call(document.querySelectorAll('[data-lang]'),function(b){b.setAttribute('aria-pressed',b.getAttribute('data-lang')===l?'true':'false');});
+  try{localStorage.setItem('lrb-lang',l);}catch(e){}
+}
+Array.prototype.forEach.call(document.querySelectorAll('[data-lang]'),function(b){b.addEventListener('click',function(){setLang(b.getAttribute('data-lang'));});});
+/* 언어: 주소의 ?lang= → 저장한 값 → 브라우저 언어 순 */
+var q=(location.search.match(/[?&]lang=(ko|en)/)||[])[1],saved=null;
+try{saved=localStorage.getItem('lrb-lang');}catch(e){}
+setLang(q||saved||((navigator.language||'ko').toLowerCase().indexOf('ko')===0?'ko':'en'));
+})();
+</script>
+</body>
+</html>
