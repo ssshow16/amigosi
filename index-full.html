@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>아미고시 — 코드만 정하면 밴드가 따라옵니다</title>
+<meta name="description" content="코드 진행과 곡 구성만 정하면 클라베, 콩가, 봉고, 마라카스, 귀로, 베이스, 피아노가 밴드처럼 맞춰 연주하는 Android·iOS 연습용 리듬 섹션 앱.">
+<meta property="og:title" content="아미고시 · Amigosi">
+<meta property="og:description" content="코드만 정하면 밴드가 따라옵니다. 손 몬투노 리듬 섹션을 내 코드 진행으로 연주하는 Android·iOS 연습 앱.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#101214">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='24 22 60 64'%3E%3Crect x='24' y='22' width='60' height='64' rx='14' fill='%231A1D21'/%3E%3Cpath fill='%23E0952E' d='M39,34 C33.5,48 35.5,66 43,78.5 Q54,82.5 65,78.5 C72.5,66 74.5,48 69,34 Z'/%3E%3Cpath fill='%232A2D33' d='M37.6,35.5 Q54,45 70.4,35.5 L69.8,40 Q54,49.5 38.2,40 Z'/%3E%3Cpath fill='%23F6F1E8' d='M38,33 a16,6 0 1,0 32,0 a16,6 0 1,0 -32,0 Z'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap">
+<style>
+/* 색과 글꼴은 앱(design/README.md)과 같다: 어두운 단일 테마, 주황 강조, 청록은 "지금 위치" */
+:root{
+  --ground:#101214; --surface:#1A1D21; --raised:#23272D; --line:#2E333A;
+  --ink:#F2F0EA; --quiet:#A4A9B0; --accent:#F5A524; --accent-dim:#8A6A2A; --now:#4FD1C5;
+  --body:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;
+  --num:'Space Grotesk','Noto Sans KR',system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased;word-break:keep-all;overflow-wrap:anywhere}
+h1,h2,h3,p{margin:0}
+a{color:inherit}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:20px}
+button{font-family:inherit;color:var(--ink);cursor:pointer}
+:focus-visible{outline:2px solid var(--now);outline-offset:2px}
+
+/* 위쪽 줄 */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:18px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px;text-decoration:none}
+.brand svg{width:34px;height:36px;flex:none}
+.lang{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.lang button{background:none;border:0;min-width:48px;min-height:36px;font-size:13px;font-family:var(--num);font-weight:700;color:var(--quiet)}
+.lang button[aria-pressed="true"]{background:var(--raised);color:var(--ink)}
+
+/* 첫 화면: 글. 앱 소리와 화면은 아래 영상으로 보여 준다(브라우저 데모는 2026-11-15에 뺐다) */
+.hero{position:relative;padding-block:28px 72px}
+.hero::before{content:"";position:absolute;inset:-120px 0 0;z-index:-1;pointer-events:none;
+  background:radial-gradient(520px 380px at 12% 30%,rgba(245,165,36,.16),transparent 70%),
+             radial-gradient(520px 420px at 88% 60%,rgba(79,209,197,.10),transparent 70%)}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:48px;align-items:center}
+.kicker{font-family:var(--num);font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+h1{font-size:clamp(34px,5.4vw,58px);line-height:1.14;font-weight:700;letter-spacing:-.02em;margin-top:14px;text-wrap:balance}
+h1 em{font-style:normal;color:var(--accent)}
+.lead{margin-top:20px;font-size:18px;color:#C9CDD3;max-width:34em}
+.cta{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:28px}
+.btn{display:inline-flex;align-items:center;gap:8px;min-height:52px;padding:0 24px;border-radius:14px;border:1px solid var(--accent);background:var(--accent);color:var(--ground);font-weight:700;font-size:16px;text-decoration:none}
+.badge{display:inline-flex;align-items:center;gap:8px;min-height:52px;padding:0 18px;border-radius:14px;border:1px solid var(--line);color:var(--quiet);font-size:14px}
+.badge i{width:8px;height:8px;border-radius:50%;background:var(--now)}
+.store{display:inline-flex;line-height:0}
+.store img{display:block;width:173px;height:52px}
+html[lang="en"] .store-ko,html:not([lang="en"]) .store-en{display:none}
+.inst{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:28px;padding:0;list-style:none;font-size:13px;color:var(--quiet)}
+.inst li::before{content:"·";margin-right:14px;color:var(--line)}
+.inst li:first-child::before{content:none}
+
+/* 본문 구역 */
+section{padding-block:72px;border-top:1px solid var(--raised)}
+h2{font-size:clamp(26px,3.6vw,38px);line-height:1.25;letter-spacing:-.01em;margin-top:10px;text-wrap:balance;max-width:20em}
+.sub{margin-top:14px;color:var(--quiet);max-width:40em}
+.film{display:block;width:100%;height:auto;aspect-ratio:16/9;margin-top:36px;border-radius:20px;border:1px solid var(--line);background:#0B0D0F;box-shadow:0 30px 80px rgba(0,0,0,.45)}
+.who-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-top:36px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px}
+.card h3{font-size:17px}
+.card p{margin-top:8px;font-size:14.5px;color:var(--quiet)}
+.card .tag{font-family:var(--num);font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--now)}
+.card .tag + h3{margin-top:8px}
+.feat{display:grid;grid-template-columns:repeat(12,1fr);gap:14px;margin-top:36px}
+.feat .card{grid-column:span 4}
+.feat .wide{grid-column:span 6}
+.flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:16px;font-size:13px}
+.flow span{border:1px solid var(--line);border-radius:10px;padding:5px 10px;background:var(--raised)}
+.flow span.hot{border-color:var(--accent);color:var(--accent)}
+.flow b{color:var(--line);font-weight:400}
+.memo{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin-top:16px;max-width:340px}
+.memo span{background:var(--raised);border-radius:8px;text-align:center;padding:7px 0 3px;font-family:var(--num);font-weight:700;font-size:17px;line-height:1.1}
+.memo span:nth-child(odd){background:#2B3037}
+.memo small{display:block;font-size:10px;font-weight:500;color:var(--quiet)}
+.say{margin-top:16px;border-left:3px solid var(--accent);padding:6px 0 6px 14px;font-size:15px;color:var(--ink)}
+.got{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.got span{font-size:12px;border-radius:999px;padding:4px 10px;background:rgba(79,209,197,.12);color:var(--now)}
+.road{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:36px}
+.road .card.nowc{border-color:var(--accent)}
+.road ul{margin:10px 0 0;padding-left:18px;font-size:14.5px;color:var(--quiet)}
+footer{border-top:1px solid var(--raised);padding-block:36px 56px;font-size:13px;color:var(--quiet)}
+footer p + p{margin-top:8px}
+footer a{color:#C9CDD3}
+
+@media (max-width:920px){
+  .hero-grid{grid-template-columns:1fr;gap:36px}
+  .feat .card,.feat .wide{grid-column:span 6}
+}
+@media (max-width:620px){
+  .feat .card,.feat .wide{grid-column:span 12}
+  section{padding-block:56px}
+  .lead{font-size:16.5px}
+  .row .who small{max-width:68px}
+  .cells{gap:2px}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<header class="wrap top">
+  <a class="brand" href="#top" aria-label="Amigosi">
+    <svg viewBox="30 24 48 60" aria-hidden="true">
+      <path fill="#E0952E" d="M39,34 C33.5,48 35.5,66 43,78.5 Q54,82.5 65,78.5 C72.5,66 74.5,48 69,34 Z"/>
+      <path fill="#B8721C" d="M57,36 C62,36 66,35.5 69,34 C74.5,48 72.5,66 65,78.5 Q61,80 57,80.6 C60,66 60.5,50 57,36 Z"/>
+      <path fill="#2A2D33" d="M38.6,60 Q54,66 69.4,60 L68.9,63 Q54,69 39.1,63 Z"/>
+      <path fill="#2A2D33" d="M37.6,35.5 Q54,45 70.4,35.5 L69.8,40 Q54,49.5 38.2,40 Z"/>
+      <path fill="#C9CED6" d="M43.2,41.5 l2.2,0.9 l-0.6,7 l-2.2,-0.9 Z M52.9,44 l2.2,0 l0,7 l-2.2,0 Z M62.6,42.4 l2.2,-0.9 l0.6,7 l-2.2,0.9 Z"/>
+      <path fill="#F6F1E8" d="M38,33 a16,6 0 1,0 32,0 a16,6 0 1,0 -32,0 Z"/>
+    </svg>
+    <span data-i18n="brand">아미고시</span>
+  </a>
+  <div class="lang" role="group" aria-label="Language">
+    <button type="button" data-lang="ko" aria-pressed="true">한국어</button>
+    <button type="button" data-lang="en" aria-pressed="false">EN</button>
+  </div>
+</header>
+
+<main id="top">
+<div class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <p class="kicker">Son Montuno · Android · iOS</p>
+      <h1 data-i18n="h1">코드만 정하면,<br><em>밴드가 따라옵니다.</em></h1>
+      <p class="lead" data-i18n="lead">코드 진행과 곡 구성만 정하세요. 클라베, 콩가, 봉고, 베이스, 피아노가 같은 진행을 따라 한 밴드처럼 연주합니다. 내 악기만 빼고 그 위에서 연습하면 됩니다.</p>
+      <div class="cta">
+        <a class="btn" href="#video" data-i18n="cta">▶ 앱 영상 보기</a>
+        <!-- 원스토어 다운로드 배지(2026-11-17). 원스토어 개발자 문서 "이미지 제작 가이드라인"의 공식 파일
+             (ONEstore App Download Badge.zip → one_downloadbadge.ai 의 검은 배지 한·영)을 그대로 잘라 PNG로 만든 것이다.
+             가이드는 "제공된 이미지만 사용"하라고 하므로 다시 그리거나 색·글자·비율을 바꾸지 않는다. 언어에 따라 CSS로 한 장만 보인다.
+             TODO(출시): 원스토어 상품 페이지 주소가 나오면 아래 span 을 <a class="store" href="주소"> 로 바꾸고, 옆의 "출시 준비 중" 배지를 뺀다.
+             Google Play·App Store 에 올라가면 각 스토어의 공식 배지를 이 옆에 같은 방식으로 더한다.
+             영어 문구는 아래 EN 의 'badge' -->
+        <span class="store">
+          <img class="store-ko" src="media/onestore-badge-ko.png" width="173" height="52" alt="원스토어에서 다운로드하기">
+          <img class="store-en" src="media/onestore-badge-en.png" width="173" height="52" alt="Download on the ONE store">
+        </span>
+        <span class="badge"><i></i><span data-i18n="badge">Android·iOS 앱 출시 준비 중</span></span>
+      </div>
+      <ul class="inst" aria-label="Instruments">
+        <li data-i18n="t.clave">클라베</li><li data-i18n="t.conga">콩가</li><li data-i18n="t.bongo">봉고·캄파나</li><li data-i18n="t.maracas">마라카스</li><li data-i18n="t.guiro">귀로</li><li data-i18n="t.bass">베이스</li><li data-i18n="t.piano">피아노</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<section id="video">
+  <div class="wrap">
+    <p class="kicker" data-i18n="v.k">See it play</p>
+    <h2 data-i18n="v.h">앱에서는 이렇게 연주합니다.</h2>
+    <p class="sub" data-i18n="v.sub">실제 앱 화면과 소리를 그대로 녹화한 40초 영상입니다. 벌스에서 시작해 피아노를 빼 보고, 몬투노로 넘어갑니다.</p>
+    <video class="film" controls playsinline preload="none" poster="media/poster.jpg" width="1920" height="1080" aria-label="Amigosi app video">
+      <source src="media/amigosi.mp4" type="video/mp4">
+    </video>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="kicker" data-i18n="w.k">For everyone but the percussionist</p>
+    <h2 data-i18n="w.h">타악 연주자 없이도, 라틴 리듬 위에서 연습하세요.</h2>
+    <p class="sub" data-i18n="w.sub">라틴 리듬은 악기마다 역할이 다르고 섹션에 따라 바뀝니다. 메트로놈이나 드럼 루프로는 그 느낌이 나지 않습니다.</p>
+    <div class="who-grid">
+      <div class="card"><p class="tag">Piano</p><h3 data-i18n="w.p.h">피아니스트</h3><p data-i18n="w.p.p">피아노를 빼고 몬투노를 연습합니다. 느린 템포에서 시작해 클라베 방향을 바꿔 가며 익힙니다.</p></div>
+      <div class="card"><p class="tag">Bass</p><h3 data-i18n="w.b.h">베이시스트</h3><p data-i18n="w.b.p">베이스를 빼고, 다음 코드를 앞당겨 치는 툼바오의 타이밍을 타악 위에서 몸에 붙입니다.</p></div>
+      <div class="card"><p class="tag">Guitar · Tres</p><h3 data-i18n="w.g.h">기타·트레스</h3><p data-i18n="w.g.p">내가 연습할 곡의 코드 진행을 넣고, 조를 옮겨 가며 과헤오와 컴핑을 연습합니다.</p></div>
+      <div class="card"><p class="tag">Horns · Vocals</p><h3 data-i18n="w.h.h">관악·보컬</h3><p data-i18n="w.h.p">벌스에서 몬투노, 맘보로 이어지는 한 곡의 흐름 위에서 멜로디와 솔로를 연습합니다.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="kicker" data-i18n="f.k">What it does</p>
+    <h2 data-i18n="f.h">루프를 트는 앱이 아니라, 진행을 알아듣는 리듬 섹션.</h2>
+    <div class="feat">
+      <div class="card wide"><p class="tag">01</p><h3 data-i18n="f1.h">베이스와 피아노가 항상 맞습니다</h3><p data-i18n="f1.p">코드를 마디·반 마디 단위로 직접 넣습니다. 패턴은 리듬과 음의 역할만 갖고 실제 음은 연주하는 순간 코드에서 계산하므로, 어떤 진행을 넣어도 두 악기가 같은 화성을 따라가고 다음 코드를 함께 앞당깁니다.</p></div>
+      <div class="card wide"><p class="tag">02</p><h3 data-i18n="f2.h">한 곡처럼 흘러갑니다</h3><p data-i18n="f2.p">섹션 여섯 가지를 원하는 순서로 이어 곡을 만듭니다. 섹션이 바뀌면 악기의 역할도 바뀌고, 넘어가기 직전에 필인이 들어갑니다.</p>
+        <div class="flow" aria-hidden="true"><span data-i18n="s.intro">인트로</span><b>→</b><span data-i18n="s.verso">벌스</span><b>→</b><span class="hot" data-i18n="s.montuno">몬투노</span><b>→</b><span data-i18n="s.mambo">맘보</span><b>→</b><span data-i18n="s.solo">솔로</span><b>→</b><span data-i18n="s.coda">코다</span></div></div>
+      <div class="card"><p class="tag">03</p><h3 data-i18n="f3.h">클라베 2-3 / 3-2</h3><p data-i18n="f3.p">방향을 바꾸면 모든 악기가 그 방향에 맞춰 연주합니다. 지금 마디가 2 쪽인지 3 쪽인지 화면에서 늘 보입니다.</p></div>
+      <div class="card"><p class="tag">04</p><h3 data-i18n="f4.h">템포를 바꿔도 같은 소리</h3><p data-i18n="f4.p">녹음된 루프를 늘이거나 줄이지 않습니다. 실제 악기의 한 음 한 음을 박자에 맞춰 연주하므로 60에서 220 BPM까지 음색이 그대로입니다.</p></div>
+      <div class="card"><p class="tag">05</p><h3 data-i18n="f5.h">내 악기는 빼고</h3><p data-i18n="f5.p">악기별 음소거·솔로·볼륨. 피아노든 베이스든 내가 연주할 자리를 비워 두고 나머지 밴드와 합주합니다.</p></div>
+      <div class="card wide"><p class="tag">06</p><h3 data-i18n="f6.h">연주자의 메모 그대로 패턴 만들기</h3><p data-i18n="f6.p">콩가, 봉고, 카우벨, 팀발레스, 마라카스, 귀로 패턴을 연주자들이 쓰는 글자로 적습니다. 2-3 기준으로 적으면 3-2에서는 알아서 맞바꿉니다.</p>
+        <div class="memo" aria-label="P T S T P T O O"><span>P<small>1</small></span><span>T<small>&amp;</small></span><span>S<small>2</small></span><span>T<small>&amp;</small></span><span>P<small>3</small></span><span>T<small>&amp;</small></span><span>O<small>4</small></span><span>O<small>&amp;</small></span></div></div>
+      <div class="card wide"><p class="tag">07</p><h3 data-i18n="f7.h">말로 구성하기</h3><p data-i18n="f7.p">원하는 반주를 한 줄로 적으면 프리셋으로 바꿔 줍니다. 기기 안에서만 처리합니다.</p>
+        <p class="say" data-i18n="f7.say">“A 단조 느린 몬투노, 3-2 클라베, 피아노 빼고”</p>
+        <div class="got" aria-hidden="true"><span data-i18n="f7.c1">손 몬투노</span><span data-i18n="f7.c2">A 단조</span><span>120 BPM</span><span data-i18n="f7.c3">클라베 3-2</span><span data-i18n="f7.c4">피아노 끔</span></div></div>
+      <div class="card"><p class="tag">08</p><h3 data-i18n="f8.h">프리셋에 전부 저장</h3><p data-i18n="f8.p">코드 진행, 곡 구성, 패턴, 믹스, 템포, 조까지 한 프리셋에 담깁니다. 연습하던 곡을 그대로 다시 엽니다.</p></div>
+      <div class="card"><p class="tag">09</p><h3 data-i18n="f9.h">무대 화면</h3><p data-i18n="f9.p">재생하면 작은 클럽 무대에서 일곱 명의 밴드가 연주합니다. 연주자를 누르면 그 악기가 꺼지고 켜집니다.</p></div>
+      <div class="card"><p class="tag">10</p><h3 data-i18n="f10.h">완전 오프라인</h3><p data-i18n="f10.p">계정이 필요 없고, 연주에는 인터넷이 필요 없습니다. 연습실에서도 지하에서도 그대로 동작합니다.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="patterns">
+  <div class="wrap">
+    <p class="kicker" data-i18n="p.k">Your own patterns</p>
+    <h2 data-i18n="p.h">내 악보와 내 메모로 패턴을 늘립니다.</h2>
+    <p class="sub" data-i18n="p.sub">앱은 교본이나 곡의 악보를 싣지 않습니다. 대신 연습하려는 악보를 직접 가져오거나 적어서 패턴으로 만듭니다. 만든 패턴도 재생할 때 지금 코드 진행에 맞춰 옮겨 연주합니다.</p>
+    <div class="feat">
+      <div class="card wide"><p class="tag">A</p><h3 data-i18n="pa.h">악보·MIDI 파일 가져오기</h3><p data-i18n="pa.p">MusicXML(.musicxml, .xml, .mxl)이나 MIDI(.mid) 파일을 고르고 파트·단·시작 마디·길이(1·2·4·8마디)를 정하면 베이스·피아노 패턴의 초안이 됩니다. 음높이, 길이, 화음, 붙임줄, 코드 기호를 읽고, 결과는 오선지 편집기에서 확인한 뒤 저장합니다. 파일은 기기 안에서만 읽습니다.</p>
+        <p data-i18n="pa.guide" style="margin-top:10px">종이 악보나 사진만 있나요? <a href="guide/musicxml.html">무료 AI 채팅으로 악보 사진을 MusicXML로 바꾸는 방법 →</a></p></div>
+      <div class="card wide"><p class="tag">B</p><h3 data-i18n="pb.h">새 패턴 만들기</h3><p data-i18n="pb.p">타악은 연주자들이 메모에 쓰는 글자를 8분음표 칸에 적습니다(콩가 P T S O U, 봉고 H L M S, 카우벨 O C, 팀발레스 R O, 마라카스 X x와 찌찍 Xx xx). 베이스와 피아노는 오선지 편집기에서 음을 놓고, 마디마다 적을 때의 코드를 함께 적어 두면 다른 진행에서도 그 진행을 따라갑니다.</p>
+        <div class="memo" aria-label="P T S T P T O O"><span>P<small>1</small></span><span>T<small>&amp;</small></span><span>S<small>2</small></span><span>T<small>&amp;</small></span><span>P<small>3</small></span><span>T<small>&amp;</small></span><span>O<small>4</small></span><span>O<small>&amp;</small></span></div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="kicker" data-i18n="r.k">Where we are</p>
+    <h2 data-i18n="r.h">지금, 그리고 다음.</h2>
+    <p class="sub" data-i18n="r.sub">첫 버전은 손 몬투노 하나에 집중합니다. 패턴은 아직 초안이고 라틴 연주자의 확인을 거쳐 확정할 예정입니다. 장르는 차례로 넓혀 갑니다.</p>
+    <div class="road">
+      <div class="card nowc"><p class="tag" data-i18n="r.now">지금</p><h3 data-i18n="r.now.h">손 몬투노</h3><ul><li data-i18n="r.now.1">타악 5종 + 베이스 + 피아노</li><li data-i18n="r.now.2">손 클라베 2-3 / 3-2</li><li data-i18n="r.now.3">한국어, 영어</li></ul></div>
+      <div class="card"><p class="tag" data-i18n="r.next">다음</p><h3 data-i18n="r.next.h">더 깊게</h3><ul><li data-i18n="r.next.1">악보 사진 보며 따라 적기</li><li data-i18n="r.next.2">연주자가 녹음한 음원</li><li data-i18n="r.next.3">백그라운드 재생</li></ul></div>
+      <div class="card"><p class="tag" data-i18n="r.later">그다음</p><h3 data-i18n="r.later.h">더 넓게</h3><ul><li data-i18n="r.later.1">살사</li><li data-i18n="r.later.2">차차차</li><li data-i18n="r.later.3">바차타</li></ul></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p><b data-i18n="brand">아미고시</b> · Amigosi</p>
+    <p data-i18n="ft.samples">영상 속 음원: 타악 <a href="https://github.com/sgossner/VCSL" rel="noopener">VCSL</a> (CC0), 베이스 <a href="https://github.com/sfzinstruments/karoryfer.meatbass" rel="noopener">Karoryfer Meatbass</a> (CC0), 피아노 <a href="https://github.com/sgossner/VCSL" rel="noopener">VCSL</a> Steinway B (CC0). 글꼴: Space Grotesk, Noto Sans KR (SIL OFL).</p>
+    <!-- TODO(출시): 문의 이메일 주소가 정해지면 여기와 privacy.html 의 문의 문단에 넣는다 -->
+    <p data-i18n="ft.links"><a href="privacy.html?lang=ko">개인정보처리방침</a></p>
+  </div>
+</footer>
+
+<script>
+(function(){
+'use strict';
+/* ---------- 다국어: 한국어는 HTML에, 영어는 여기에. 동적 문구는 DYN ---------- */
+var EN={
+ 'p.k':'Your own patterns','p.h':'Grow your patterns from your own sheets and notes.',
+ 'p.sub':'The app ships no method-book or song transcriptions. Instead you import or write the sheets you practise into patterns. Your patterns, too, follow the current chord progression when they play.',
+ 'pa.h':'Import sheet music and MIDI files','pa.p':'Pick a MusicXML (.musicxml, .xml, .mxl) or MIDI (.mid) file, choose the part, staff, start bar and length (1, 2, 4 or 8 bars), and it becomes a draft bass or piano pattern. Pitches, durations, chords, ties and chord symbols are read; you check the result in the staff editor before saving. Files are read on the device only.',
+ 'pa.guide':'Only have paper or a photo? <a href="guide/musicxml.html?lang=en">How to turn a sheet music photo into MusicXML with a free AI chat →</a>',
+ 'pb.h':'Make a new pattern','pb.p':'For percussion, write the letters players use in their notes into eighth-note cells (congas P T S O U, bongos H L M S, cowbell O C, timbales R O, maracas X x and double shakes Xx xx). For bass and piano, place notes in the staff editor and note the chord of each bar, so the pattern follows other progressions too.',
+ 'brand':'Amigosi',
+ 'h1':'Set the chords.<br><em>The band follows.</em>',
+ 'lead':'Pick a chord progression and a song form. Clave, congas, bongos, bass and piano play it together like a real band. Drop out your own instrument and practice on top.',
+ 'cta':'▶ Watch the app video','badge':'Android & iOS app coming soon',
+ 't.clave':'Clave','t.conga':'Congas','t.bongo':'Bongos · bell','t.maracas':'Maracas','t.guiro':'Güiro','t.bass':'Bass','t.piano':'Piano',
+ 's.verso':'Verse','s.montuno':'Montuno',
+ 's.intro':'Intro','s.mambo':'Mambo','s.solo':'Solo','s.coda':'Coda',
+ 'v.k':'See it play','v.h':'This is how it plays in the app.',
+ 'v.sub':'A 40-second recording of the real app, screen and sound. It starts in the verse, drops the piano out, then moves into the montuno.',
+ 'w.k':'For everyone but the percussionist',
+ 'w.h':'Practice over a Latin rhythm section, without the percussionists.',
+ 'w.sub':'In Latin music every instrument has its own role, and the roles change with the section. A metronome or a drum loop does not give you that.',
+ 'w.p.h':'Pianists','w.p.p':'Mute the piano and practice your montuno. Start slow, then flip the clave direction.',
+ 'w.b.h':'Bassists','w.b.p':'Mute the bass and lock in the anticipated tumbao against the percussion.',
+ 'w.g.h':'Guitar · Tres','w.g.p':'Enter the changes of the tune you are learning, transpose, and work on guajeos and comping.',
+ 'w.h.h':'Horns · Vocals','w.h.p':'Practice melodies and solos over a whole song form, from verse to montuno to mambo.',
+ 'f.k':'What it does','f.h':'Not a loop player. A rhythm section that understands your changes.',
+ 'f1.h':'Bass and piano always agree','f1.p':'Enter chords per bar or half bar. Patterns only hold rhythm and note roles; the actual notes are worked out from the chord at play time. So whatever progression you enter, both instruments follow the same harmony and anticipate the next chord together.',
+ 'f2.h':'It moves like a song','f2.p':'Chain six kinds of sections in any order. When the section changes, the instruments change roles, with a fill just before the switch.',
+ 'f3.h':'Clave 2-3 / 3-2','f3.p':'Flip the direction and every instrument plays to it. You always see whether you are on the 2 side or the 3 side.',
+ 'f4.h':'Same sound at any tempo','f4.p':'No stretched audio loops. Single notes of real instruments are sequenced in time, so the tone stays the same from 60 to 220 BPM.',
+ 'f5.h':'Minus your instrument','f5.p':'Mute, solo and volume per instrument. Leave your own chair empty and play with the rest of the band.',
+ 'f6.h':'Write patterns the way players jot them down','f6.p':'Write conga, bongo, cowbell, timbales, maracas and güiro patterns in the letters players use. Write in 2-3 and the app swaps the bars for 3-2.',
+ 'f7.h':'Say what you want','f7.p':'Describe the backing in one line and it becomes a preset. Everything stays on your device.',
+ 'f7.say':'“slow montuno in A minor, 3-2 clave, without piano”',
+ 'f7.c1':'Son montuno','f7.c2':'A minor','f7.c3':'Clave 3-2','f7.c4':'Piano off',
+ 'f8.h':'Presets remember everything','f8.p':'Progression, song form, patterns, mix, tempo and key all live in one preset. Reopen the tune exactly as you left it.',
+ 'f9.h':'Stage view','f9.p':'Press play and a seven-piece band plays on a small club stage. Tap a player to switch that instrument off and on.',
+ 'f10.h':'Fully offline','f10.p':'No account, and no connection needed to play. It works in the rehearsal room and in the basement.',
+ 'r.k':'Where we are','r.h':'Now, and next.',
+ 'r.sub':'The first version focuses on son montuno alone. Patterns are still drafts and will be finalized after review by Latin players. More genres follow one at a time.',
+ 'r.now':'Now','r.now.h':'Son montuno','r.now.1':'Five percussion parts + bass + piano','r.now.2':'Son clave 2-3 / 3-2','r.now.3':'Korean and English',
+ 'r.next':'Next','r.next.h':'Deeper','r.next.1':'Copy from a sheet photo in the editor','r.next.2':'Sounds recorded by players','r.next.3':'Background playback',
+ 'r.later':'Later','r.later.h':'Wider','r.later.1':'Salsa','r.later.2':'Cha-cha-chá','r.later.3':'Bachata',
+ 'ft.samples':'Sounds in the video: percussion from <a href="https://github.com/sgossner/VCSL" rel="noopener">VCSL</a> (CC0), bass from <a href="https://github.com/sfzinstruments/karoryfer.meatbass" rel="noopener">Karoryfer Meatbass</a> (CC0), piano from <a href="https://github.com/sgossner/VCSL" rel="noopener">VCSL</a> Steinway B (CC0). Fonts: Space Grotesk, Noto Sans KR (SIL OFL).',
+ 'ft.links':'<a href="privacy.html?lang=en">Privacy policy</a>'
+};
+var DYN={
+ ko:{title:'아미고시 — 코드만 정하면 밴드가 따라옵니다'},
+ en:{title:'Amigosi — Set the chords. The band follows.'}
+};
+var lang='ko',KO={};
+function $(id){return document.getElementById(id);}
+function L(){return DYN[lang];}
+var i18nEls=document.querySelectorAll('[data-i18n]');
+Array.prototype.forEach.call(i18nEls,function(el){var k=el.getAttribute('data-i18n');if(!(k in KO))KO[k]=el.innerHTML;});
+function setLang(l){
+  lang=l;document.documentElement.lang=l;document.title=L().title;
+  Array.prototype.forEach.call(i18nEls,function(el){var k=el.getAttribute('data-i18n');el.innerHTML=(l==='en'&&EN[k])||KO[k];});
+  Array.prototype.forEach.call(document.querySelectorAll('[data-lang]'),function(b){b.setAttribute('aria-pressed',b.getAttribute('data-lang')===l?'true':'false');});
+  try{localStorage.setItem('lrb-lang',l);}catch(e){}
+}
+
+Array.prototype.forEach.call(document.querySelectorAll('[data-lang]'),function(b){b.addEventListener('click',function(){setLang(b.getAttribute('data-lang'));});});
+
+var saved=null;try{saved=localStorage.getItem('lrb-lang');}catch(e){}
+setLang(saved||((navigator.language||'ko').toLowerCase().indexOf('ko')===0?'ko':'en'));
+})();
+</script>
+</body>
+</html>
