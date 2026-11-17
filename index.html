@@ -53,6 +53,9 @@ h1 em{font-style:normal;color:var(--accent)}
 .btn{display:inline-flex;align-items:center;gap:8px;min-height:52px;padding:0 24px;border-radius:14px;border:1px solid var(--accent);background:var(--accent);color:var(--ground);font-weight:700;font-size:16px;text-decoration:none}
 .badge{display:inline-flex;align-items:center;gap:8px;min-height:52px;padding:0 18px;border-radius:14px;border:1px solid var(--line);color:var(--quiet);font-size:14px}
 .badge i{width:8px;height:8px;border-radius:50%;background:var(--now)}
+.store{display:inline-flex;line-height:0}
+.store img{display:block;width:173px;height:52px}
+html[lang="en"] .store-ko,html:not([lang="en"]) .store-en{display:none}
 .inst{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:28px;padding:0;list-style:none;font-size:13px;color:var(--quiet)}
 .inst li::before{content:"·";margin-right:14px;color:var(--line)}
 .inst li:first-child::before{content:none}
@@ -132,7 +135,16 @@ footer a{color:#C9CDD3}
       <p class="lead" data-i18n="lead">코드 진행과 곡 구성만 정하세요. 클라베, 콩가, 봉고, 베이스, 피아노가 같은 진행을 따라 한 밴드처럼 연주합니다. 내 악기만 빼고 그 위에서 연습하면 됩니다.</p>
       <div class="cta">
         <a class="btn" href="#video" data-i18n="cta">▶ 앱 영상 보기</a>
-        <!-- TODO(출시): 스토어에 올라가면 아래 배지를 Google Play·App Store 링크 두 개로 바꾼다(주소는 아직 없다). 영어 문구는 아래 EN 의 'badge' -->
+        <!-- 원스토어 다운로드 배지(2026-11-17). 원스토어 개발자 문서 "이미지 제작 가이드라인"의 공식 파일
+             (ONEstore App Download Badge.zip → one_downloadbadge.ai 의 검은 배지 한·영)을 그대로 잘라 PNG로 만든 것이다.
+             가이드는 "제공된 이미지만 사용"하라고 하므로 다시 그리거나 색·글자·비율을 바꾸지 않는다. 언어에 따라 CSS로 한 장만 보인다.
+             TODO(출시): 원스토어 상품 페이지 주소가 나오면 아래 span 을 <a class="store" href="주소"> 로 바꾸고, 옆의 "출시 준비 중" 배지를 뺀다.
+             Google Play·App Store 에 올라가면 각 스토어의 공식 배지를 이 옆에 같은 방식으로 더한다.
+             영어 문구는 아래 EN 의 'badge' -->
+        <span class="store">
+          <img class="store-ko" src="media/onestore-badge-ko.png" width="173" height="52" alt="원스토어에서 다운로드하기">
+          <img class="store-en" src="media/onestore-badge-en.png" width="173" height="52" alt="Download on the ONE store">
+        </span>
         <span class="badge"><i></i><span data-i18n="badge">Android·iOS 앱 출시 준비 중</span></span>
       </div>
       <ul class="inst" aria-label="Instruments">
