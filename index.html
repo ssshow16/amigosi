@@ -89,7 +89,7 @@ footer a{color:#C9CDD3}
 
 <footer>
   <div class="wrap">
-    <p><b data-i18n="brand">아미고시</b> · Amigosi</p>
+    <p data-i18n="ft.brand"><b>아미고시</b> · Amigosi</p>
     <p data-i18n="ft.links"><a href="privacy.html?lang=ko">개인정보처리방침</a></p>
   </div>
 </footer>
@@ -97,9 +97,10 @@ footer a{color:#C9CDD3}
 <script>
 (function(){
 'use strict';
-/* 한국어는 HTML에, 영어는 여기에. 언어 고르기는 index-full.html 과 같다(?lang= 이 있으면 그것을 먼저 따른다) */
+/* 한국어는 HTML에, 영어는 여기에. 언어 고르기는 privacy.html·guide 와 같다(?lang= → 저장한 값 → 브라우저 언어).
+   index-full.html 은 ?lang= 을 읽지 않는다. 출시 때 되돌리면 그쪽에도 ?lang= 처리를 넣는다 */
 var EN={
- 'brand':'Amigosi',
+ 'brand':'Amigosi','ft.brand':'<b>Amigosi</b>',
  'h1':'Set the chords.<br><em>The band follows.</em>',
  'lead':'A practice app where clave, congas, bongos, bass and piano play your chord progression and song form together, like a real band.',
  'badge':'Coming soon',
